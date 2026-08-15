@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: friendly-card-room-server
+    runtime: node
+    plan: starter
+    numInstances: 1
+    buildCommand: npm ci && npm run build
+    preDeployCommand: npm run migrate
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: 24
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: CLIENT_ORIGINS
+        sync: false
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: ROOM_TOKEN_PEPPER
+        generateValue: true
+      - key: ROOM_TTL_HOURS
+        value: 24
+      - key: LOG_LEVEL
+        value: info

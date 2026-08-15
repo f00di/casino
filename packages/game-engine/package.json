@@ -1,0 +1,21 @@
+{
+  "name": "@friendly-card-room/game-engine",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "verify:audit": "tsx scripts/verify-audit.ts"
+  },
+  "devDependencies": {
+    "tsx": "^4.20.3"
+  }
+}
