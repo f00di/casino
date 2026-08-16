@@ -22,6 +22,7 @@
 - [x] Completed responsive review at 1440, 1280, 768, 390, and 375 pixels with no horizontal overflow; visually inspected desktop and 390px landing screenshots.
 - [x] Completed hidden-data/secret/forbidden-randomness/incomplete-marker searches and dependency audit (0 vulnerabilities).
 - [x] Clean `npm ci`, 60 unit/integration tests, production build, compiled-server health smoke test, and all 4 Playwright tests pass.
+- [x] Added guarded host session completion and an authenticated completed-session audit JSON download; Playwright verifies the download filename and both participants’ results transition.
 
 ## In Progress
 
@@ -39,8 +40,8 @@
 - Type checking: `npm run typecheck` passed (2026-08-15).
 - Unit tests: `npm test` passed, 60 tests in 10 files (2026-08-15; loopback permission enabled).
 - Integration tests: included above; room, recovery/deadline, redaction, config, and HTTP integration tests passed.
-- Production build: `npm run build` passed; Vite bundle 347.86 kB JS / 109.54 kB gzip (2026-08-15).
-- E2E tests: `npm run test:e2e` passed, 4 tests across desktop and mobile Chromium, including independent Poker/Blackjack contexts and reconnect (2026-08-15).
+- Production build: `npm run build` passed; Vite bundle 350.12 kB JS / 110.05 kB gzip (2026-08-15).
+- E2E tests: `npm run test:e2e` passed, 4 tests across desktop and mobile Chromium, including independent Poker/Blackjack contexts, reconnect, session completion, and authenticated audit download (2026-08-15).
 - Production start smoke: compiled `npm start` served `/health` 200 on port 3011 and shut down cleanly (2026-08-15).
 
 ## Known Problems

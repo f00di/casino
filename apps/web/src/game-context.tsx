@@ -43,6 +43,7 @@ interface ContextValue extends AppState {
   nextPokerHand(): Promise<ActionResult>;
   nextBlackjackRound(): Promise<ActionResult>;
   endSession(): Promise<ActionResult>;
+  downloadAudit(): Promise<ActionResult>;
   sendChat(message: string): Promise<ActionResult>;
   retry(): void;
   clearSession(): void;
@@ -238,6 +239,52 @@ export function GameProvider({ children }: { children: ReactNode }): ReactNode {
       nextPokerHand: () => withSession("poker:nextHand", {}),
       nextBlackjackRound: () => withSession("blackjack:nextRound", {}),
       endSession: () => withSession("session:end", {}),
+      downloadAudit: async () => {
+        if (state.session === undefined || state.room === undefined)
+          return {
+            ok: false,
+            code: "INVALID_RECONNECT_TOKEN",
+            message: "No completed session is available.",
+            stateVersion: 0,
+          };
+        const response = await fetch(
+          `${API_URL ?? "http://localhost:3001"}/api/rooms/${state.session.roomId}/audit`,
+          {
+            headers: {
+              "x-player-id": state.session.playerId,
+              "x-reconnect-token": state.session.reconnectToken,
+            },
+            cache: "no-store",
+          },
+        );
+        if (!response.ok) {
+          const failure = (await response.json()) as { message?: string };
+          const result: ActionResult = {
+            ok: false,
+            code: "INVALID_ACTION",
+            message: failure.message ?? "The audit could not be downloaded.",
+            stateVersion: state.room.stateVersion,
+          };
+          notify(result.message);
+          return result;
+        }
+        const data: unknown = await response.json();
+        const url = URL.createObjectURL(
+          new Blob([JSON.stringify(data, null, 2)], {
+            type: "application/json",
+          }),
+        );
+        const anchor = document.createElement("a");
+        anchor.href = url;
+        anchor.download = `${state.room.roomCode}-session-audit.json`;
+        anchor.click();
+        URL.revokeObjectURL(url);
+        return {
+          ok: true,
+          message: "Session audit downloaded.",
+          stateVersion: state.room.stateVersion,
+        };
+      },
       sendChat: (message) => withSession("room:chat", { message }),
       retry: () => {
         setConnection("connecting");
@@ -251,7 +298,7 @@ export function GameProvider({ children }: { children: ReactNode }): ReactNode {
       dismissNotice: (index) =>
         setNotices((values) => values.filter((_, item) => item !== index)),
     }),
-    [acceptJoin, chats, connection, notices, state, withSession],
+    [acceptJoin, chats, connection, notices, notify, state, withSession],
   );
   return <GameContext.Provider value={value}>{children}</GameContext.Provider>;
 }

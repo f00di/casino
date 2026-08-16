@@ -5,7 +5,7 @@ import { formatCredits } from "../lib.js";
 import type { BlackjackHandView, BlackjackView, CardData } from "../types.js";
 import { PlayingCard } from "../components/card.js";
 import { ChatDrawer, RoomTools } from "../components/chrome.js";
-import { Button, Input, Panel } from "../components/ui.js";
+import { Button, Dialog, Input, Panel } from "../components/ui.js";
 
 function handTotal(cards: CardData[]): { total: number; soft: boolean } {
   let total = cards.reduce(
@@ -28,8 +28,10 @@ export function BlackjackPage({ game }: { game: BlackjackView }): ReactNode {
     blackjackBet,
     blackjackInsurance,
     nextBlackjackRound,
+    endSession,
   } = useGame();
   const [bet, setBet] = useState(10);
+  const [ending, setEnding] = useState(false);
   if (room === undefined || session === undefined) return null;
   const me = game.players.find((player) => player.id === session.playerId);
   const names = new Map(
@@ -47,7 +49,15 @@ export function BlackjackPage({ game }: { game: BlackjackView }): ReactNode {
           </p>
           <p className="text-sm capitalize text-muted">{game.phase}</p>
         </div>
-        <RoomTools roomCode={room.roomCode} />
+        <div className="flex items-center gap-1">
+          <RoomTools roomCode={room.roomCode} />
+          {room.players.find((player) => player.id === session.playerId)
+            ?.isHost && (
+            <Button variant="ghost" onClick={() => setEnding(true)}>
+              End
+            </Button>
+          )}
+        </div>
       </div>
       <section
         className="blackjack-table mx-auto max-w-6xl"
@@ -239,6 +249,28 @@ export function BlackjackPage({ game }: { game: BlackjackView }): ReactNode {
             ? "It is your turn."
             : ""}
       </div>
+      {ending && (
+        <Dialog title="End this session?" onClose={() => setEnding(false)}>
+          <p className="mb-5 text-sm text-muted">
+            This completes the play-money session and releases the committed
+            shoe audit to participants. It cannot be resumed.
+          </p>
+          <div className="flex justify-end gap-2">
+            <Button variant="secondary" onClick={() => setEnding(false)}>
+              Keep playing
+            </Button>
+            <Button
+              variant="danger"
+              onClick={() => {
+                setEnding(false);
+                void endSession();
+              }}
+            >
+              End session
+            </Button>
+          </div>
+        </Dialog>
+      )}
       <ChatDrawer />
     </main>
   );

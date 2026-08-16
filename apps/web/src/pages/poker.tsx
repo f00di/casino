@@ -8,9 +8,10 @@ import { ChatDrawer, RoomTools } from "../components/chrome.js";
 import { Button, Dialog, Input } from "../components/ui.js";
 
 export function PokerPage({ game }: { game: PokerView }): ReactNode {
-  const { room, session, pokerAction, nextPokerHand } = useGame();
+  const { room, session, pokerAction, nextPokerHand, endSession } = useGame();
   const [raiseOpen, setRaiseOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [ending, setEnding] = useState(false);
   if (room === undefined || session === undefined) return null;
   const me = game.players.find((player) => player.id === session.playerId);
   const names = new Map(
@@ -40,6 +41,12 @@ export function PokerPage({ game }: { game: PokerView }): ReactNode {
             <History size={17} />
           </button>
           <RoomTools roomCode={room.roomCode} />
+          {room.players.find((player) => player.id === session.playerId)
+            ?.isHost && (
+            <Button variant="ghost" onClick={() => setEnding(true)}>
+              End
+            </Button>
+          )}
         </div>
       </div>
       <section className="poker-table mx-auto" aria-label="Texas Hold'em table">
@@ -136,6 +143,28 @@ export function PokerPage({ game }: { game: PokerView }): ReactNode {
                   {player.lastAction}
                 </p>
               ))}
+          </div>
+        </Dialog>
+      )}
+      {ending && (
+        <Dialog title="End this session?" onClose={() => setEnding(false)}>
+          <p className="mb-5 text-sm text-muted">
+            This completes the play-money session and makes its deck audit
+            available to participants. It cannot be resumed.
+          </p>
+          <div className="flex justify-end gap-2">
+            <Button variant="secondary" onClick={() => setEnding(false)}>
+              Keep playing
+            </Button>
+            <Button
+              variant="danger"
+              onClick={() => {
+                setEnding(false);
+                void endSession();
+              }}
+            >
+              End session
+            </Button>
           </div>
         </Dialog>
       )}
@@ -252,8 +281,8 @@ function ActionBar({
             All-in
           </Button>
         )}
-        {!myTurn && (
-          game.street === "complete" && canAdvance ? (
+        {!myTurn &&
+          (game.street === "complete" && canAdvance ? (
             <Button onClick={nextHand}>Deal next hand</Button>
           ) : (
             <p className="col-span-3 px-4 py-3 text-center text-sm text-muted">
@@ -261,8 +290,7 @@ function ActionBar({
                 ? "Next hand begins shortly…"
                 : "Waiting for the next action…"}
             </p>
-          )
-        )}
+          ))}
       </div>
     </div>
   );

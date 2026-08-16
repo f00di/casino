@@ -65,5 +65,12 @@ test('two blackjack players can wager, act, settle, and reconnect', async ({ bro
     expect(await host.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
     await guest.reload(); await expect(guest.getByText('Successfully reconnected.')).toBeVisible();
     await expect(guest.getByText(/Round 1/u)).toBeVisible();
+    await host.getByRole('button', { name: 'End', exact: true }).click();
+    await host.getByRole('button', { name: 'End session' }).click();
+    await expect(host.getByText('Session complete')).toBeVisible();
+    await expect(guest.getByText('Session complete')).toBeVisible();
+    const downloadPromise = host.waitForEvent('download');
+    await host.getByRole('button', { name: 'Download audit JSON' }).click();
+    expect((await downloadPromise).suggestedFilename()).toBe(`${code}-session-audit.json`);
   } finally { await hostContext.close(); await guestContext.close(); }
 });
