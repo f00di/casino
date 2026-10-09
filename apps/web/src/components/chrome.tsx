@@ -13,8 +13,8 @@ export function AppHeader(): ReactNode {
 export function ConnectionBanner(): ReactNode {
   const { connection, retry } = useGame();
   if (connection === 'connected') return null;
-  const copy = connection === 'reconnecting' ? 'Connection lost. Reconnecting with secure exponential backoff…' : connection === 'unavailable' ? 'Server unavailable.' : 'Connecting to the card room…';
-  return <div className="fixed inset-x-3 top-20 z-50 mx-auto flex max-w-xl items-center justify-between gap-3 rounded-xl border border-danger/30 bg-[#321d1b] px-4 py-3 text-sm shadow-card" role="alert"><span>{copy}</span><Button variant="secondary" onClick={retry}>Retry connection</Button></div>;
+  const copy = connection === 'not-configured' ? 'The card room server is not online yet, so rooms cannot be created or joined right now.' : connection === 'reconnecting' ? 'Connection lost. Reconnecting with secure exponential backoff…' : connection === 'unavailable' ? 'Server unavailable.' : 'Connecting to the card room…';
+  return <div className="fixed inset-x-3 top-20 z-50 mx-auto flex max-w-xl items-center justify-between gap-3 rounded-xl border border-danger/30 bg-[#321d1b] px-4 py-3 text-sm shadow-card" role="alert"><span>{copy}</span>{connection !== 'not-configured' && <Button variant="secondary" onClick={retry}>Retry connection</Button>}</div>;
 }
 
 export function Toasts(): ReactNode {

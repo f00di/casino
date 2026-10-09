@@ -23,6 +23,7 @@
 - [x] Completed hidden-data/secret/forbidden-randomness/incomplete-marker searches and dependency audit (0 vulnerabilities).
 - [x] Clean `npm ci`, 60 unit/integration tests, production build, compiled-server health smoke test, and all 4 Playwright tests pass.
 - [x] Added guarded host session completion and an authenticated completed-session audit JSON download; Playwright verifies the download filename and both participants’ results transition.
+- [x] 2026-10-08: Fixed CI lint on fresh checkouts (workspace `types` now point at `src`); production builds without `VITE_API_URL` no longer try `localhost:3001` and instead show "server is not online yet". Lint, typecheck, 60 tests, build and 4 Playwright tests pass.
 
 ## In Progress
 
@@ -31,6 +32,7 @@
 ## Remaining
 
 - [ ] Apply migrations to the user’s Supabase project and perform a restore drill.
+- [ ] Set GitHub Pages source to "GitHub Actions" (branch builds currently overwrite the app with the README).
 - [ ] Deploy one Render instance and GitHub Pages, then perform HTTPS/WSS two-device production smoke tests.
 
 ## Last Successful Commands

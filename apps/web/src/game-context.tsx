@@ -22,9 +22,18 @@ import { clientActionId } from "./lib.js";
 
 const STORAGE_KEY = "friendly-card-room:session";
 const API_URL = import.meta.env.VITE_API_URL as string | undefined;
+// Only fall back to a local server in development. A production build without
+// VITE_API_URL (e.g. GitHub Pages before the server is deployed) must not make
+// visitors' browsers connect to their own localhost.
+const SERVER_URL = API_URL ?? (import.meta.env.DEV ? "http://localhost:3001" : undefined);
 
 type ConnectionState =
-  "connecting" | "connected" | "reconnecting" | "offline" | "unavailable";
+  | "connecting"
+  | "connected"
+  | "reconnecting"
+  | "offline"
+  | "unavailable"
+  | "not-configured";
 interface ContextValue extends AppState {
   socket: Socket;
   connection: ConnectionState;
@@ -60,7 +69,7 @@ function storedSession(): StoredSession | undefined {
   }
 }
 
-const socket = io(API_URL ?? "http://localhost:3001", {
+const socket = io(SERVER_URL ?? "http://localhost:3001", {
   autoConnect: false,
   transports: ["websocket", "polling"],
   reconnection: true,
@@ -98,7 +107,9 @@ export function GameProvider({ children }: { children: ReactNode }): ReactNode {
     const session = storedSession();
     return session === undefined ? {} : { session };
   });
-  const [connection, setConnection] = useState<ConnectionState>("connecting");
+  const [connection, setConnection] = useState<ConnectionState>(
+    SERVER_URL === undefined ? "not-configured" : "connecting",
+  );
   const [notices, setNotices] = useState<string[]>([]);
   const [chats, setChats] = useState<ChatMessage[]>([]);
   const notify = useCallback(
@@ -149,7 +160,7 @@ export function GameProvider({ children }: { children: ReactNode }): ReactNode {
     socket.on("room:snapshot", onRoom);
     socket.on("game:snapshot", onGame);
     socket.on("room:chat", onChat);
-    socket.connect();
+    if (SERVER_URL !== undefined) socket.connect();
     return () => {
       socket.off("connect", onConnect);
       socket.off("disconnect", onDisconnect);
@@ -248,7 +259,7 @@ export function GameProvider({ children }: { children: ReactNode }): ReactNode {
             stateVersion: 0,
           };
         const response = await fetch(
-          `${API_URL ?? "http://localhost:3001"}/api/rooms/${state.session.roomId}/audit`,
+          `${SERVER_URL ?? ""}/api/rooms/${state.session.roomId}/audit`,
           {
             headers: {
               "x-player-id": state.session.playerId,
@@ -287,6 +298,7 @@ export function GameProvider({ children }: { children: ReactNode }): ReactNode {
       },
       sendChat: (message) => withSession("room:chat", { message }),
       retry: () => {
+        if (SERVER_URL === undefined) return;
         setConnection("connecting");
         socket.connect();
       },
