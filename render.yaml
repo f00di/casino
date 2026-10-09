@@ -2,14 +2,15 @@ services:
   - type: web
     name: friendly-card-room-server
     runtime: node
-    plan: starter
+    plan: free
     numInstances: 1
     region: frankfurt
     # NODE_ENV=production makes npm ci skip devDependencies, but the build
     # needs TypeScript and migrations need tsx.
     buildCommand: npm ci --include=dev && npm run build
-    preDeployCommand: npm run migrate
-    startCommand: npm start
+    # Free instances have no pre-deploy step. Migrations are idempotent
+    # (applied files are skipped), so run them on every start.
+    startCommand: npm run migrate && npm start
     healthCheckPath: /health
     autoDeploy: true
     envVars:
