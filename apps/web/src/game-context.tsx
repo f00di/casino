@@ -21,7 +21,8 @@ import type { AppState, GameView, StoredSession } from "./types.js";
 import { clientActionId } from "./lib.js";
 
 const STORAGE_KEY = "friendly-card-room:session";
-const API_URL = import.meta.env.VITE_API_URL as string | undefined;
+// CI passes an empty string when the VITE_API_URL repo variable is unset.
+const API_URL = (import.meta.env.VITE_API_URL as string | undefined)?.trim() || undefined;
 // Only fall back to a local server in development. A production build without
 // VITE_API_URL (e.g. GitHub Pages before the server is deployed) must not make
 // visitors' browsers connect to their own localhost.
