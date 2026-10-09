@@ -18,7 +18,7 @@
     "typecheck": "tsc -b --pretty false",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "build": "npm run build --workspaces --if-present",
+    "build": "npm run build -w @friendly-card-room/shared && npm run build -w @friendly-card-room/game-engine && npm run build -w @friendly-card-room/server && npm run build -w @friendly-card-room/web",
     "start": "npm run start -w @friendly-card-room/server",
     "migrate": "npm run migrate -w @friendly-card-room/server",
     "verify:audit": "npm run verify:audit -w @friendly-card-room/game-engine"

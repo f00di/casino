@@ -4,7 +4,10 @@ services:
     runtime: node
     plan: starter
     numInstances: 1
-    buildCommand: npm ci && npm run build
+    region: frankfurt
+    # NODE_ENV=production makes npm ci skip devDependencies, but the build
+    # needs TypeScript and migrations need tsx.
+    buildCommand: npm ci --include=dev && npm run build
     preDeployCommand: npm run migrate
     startCommand: npm start
     healthCheckPath: /health
