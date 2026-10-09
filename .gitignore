@@ -11,3 +11,6 @@ test-results/
 .DS_Store
 .vite/
 *.tsbuildinfo
+
+# personal Claude Code notes
+CLAUDE.local.md
