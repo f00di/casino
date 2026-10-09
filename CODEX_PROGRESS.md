@@ -24,6 +24,7 @@
 - [x] Clean `npm ci`, 60 unit/integration tests, production build, compiled-server health smoke test, and all 4 Playwright tests pass.
 - [x] Added guarded host session completion and an authenticated completed-session audit JSON download; Playwright verifies the download filename and both participants’ results transition.
 - [x] 2026-10-08: Fixed CI lint on fresh checkouts (workspace `types` now point at `src`); production builds without `VITE_API_URL` no longer try `localhost:3001` and instead show "server is not online yet". Lint, typecheck, 60 tests, build and 4 Playwright tests pass.
+- [x] 2026-10-08: Render readiness: root `build` now builds shared → game-engine → server → web (fresh checkouts failed because npm built server first); `render.yaml` uses `npm ci --include=dev` (NODE_ENV=production skipped TypeScript/tsx) and region `frankfurt`; added `0002_enable_rls.sql` (RLS on all tables, default privileges revoked from anon/authenticated). Lint, typecheck, 60 tests, build and 4 Playwright tests pass. Migrations not yet run against a real Postgres.
 
 ## In Progress
 
